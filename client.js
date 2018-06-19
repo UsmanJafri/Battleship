@@ -27,25 +27,30 @@ const shipClick = event => {
     r = parseInt(event.target.dataset.r)
     c = parseInt(event.target.dataset.c)
     startPos = [r,c]
-    if (c < 6 && !state.ac) {
-        for (i = 0;i < 5;i++) {
-            state.grid[r].props.children[c] = React.createElement('div',{className: 'box ship-aircraft_carrier',onClick: ev => shipClick(ev),'data-r': r,'data-c': c})
+    ship = state.selectedShip
+    shipSize = parseInt(shipsize[ship])
+    shipClassname = 'box ship-'+ship
+    shipStatus = state[ship]
+    maxCol = 11 - shipSize
+    if (c < maxCol && !shipStatus) {
+        for (i = 0;i < shipSize;i++) {
+            state.grid[r].props.children[c] = React.createElement('div',{className: shipClassname,onClick: ev => shipClick(ev),'data-r': r,'data-c': c})
             c += 1
         }
-        setState({grid: state.grid,ac: true,ac_coord: startPos})
+        setState({grid: state.grid,[ship]: true,[ship+"Coord"]: startPos})
     }
-    else if (c < 6 && state.ac) {
-        oldR = state.ac_coord[0]
-        oldC = state.ac_coord[1]
-        for (i = 0;i < 5;i++) {
+    else if (c < maxCol && shipStatus) {
+        oldR = state[ship+"Coord"][0]
+        oldC = state[ship+"Coord"][1]
+        for (i = 0;i < shipSize;i++) {
             state.grid[oldR].props.children[oldC] = React.createElement('div',{className: 'box',onClick: ev => shipClick(ev),'data-r': oldR,'data-c': oldC})
             oldC += 1
         }
-        for (i = 0;i < 5;i++) {
-            state.grid[r].props.children[c] = React.createElement('div',{className: 'box ship-aircraft_carrier',onClick: ev => shipClick(ev),'data-r': r,'data-c': c})
+        for (i = 0;i < shipSize;i++) {
+            state.grid[r].props.children[c] = React.createElement('div',{className: shipClassname,onClick: ev => shipClick(ev),'data-r': r,'data-c': c})
             c += 1
         }
-        setState({grid: state.grid,ac_coord: startPos})
+        setState({grid: state.grid,[ship+"Coord"]: startPos})
     }
 }
 
@@ -53,7 +58,7 @@ const setState = updates => {
     Object.assign(state, updates)
     ReactDOM.render(React.createElement('div', null, state.msg,
         React.createElement('div',null,state.grid),
-        React.createElement('select',null,
+        React.createElement('select',{onChange: ev => setState({selectedShip: ev.target.value})},
             React.createElement('option',{},'aircraft_carrier'),
             React.createElement('option',{},'battleship'),
             React.createElement('option',{},'cruiser'),
@@ -61,6 +66,7 @@ const setState = updates => {
             React.createElement('option',{},'submarine')
         ),
     ),document.getElementById('root'))
+    // console.log(state)
 }
 
-setState({msg: 'Hello World',grid: gridInit(),ac: false})
+setState({msg: 'Hello World',grid: gridInit(),aircraft_carrier: false,battleship: false,cruiser: false,destroyer: false,submarine: false,selectedShip: 'aircraft_carrier'})
