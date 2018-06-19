@@ -15,6 +15,7 @@ const io = socketio(server)
 io.sockets.on('connection', socket => {
     console.log('a client connected')
     socket.on('disconnect', () => console.log('a client disconnected'))
+    socket.on('clientState',data => console.log(data))
 })
 
 server.listen(8000)

@@ -120,7 +120,7 @@ const shipClickGuess = event => {
     r = parseInt(event.target.dataset.r)
     c = parseInt(event.target.dataset.c)
     startPos = [r,c]
-    ship = state.selectedShip
+    ship = state.guessSelectedShip
     shipSize = parseInt(shipsize[ship])
     shipClassname = 'box ship-'+ship
     shipStatus = state[ship+"Guess"]
@@ -209,9 +209,16 @@ const setState = updates => {
             React.createElement('option',{},'cruiser'),
             React.createElement('option',{},'destroyer'),
             React.createElement('option',{},'submarine')
-        ),React.createElement('div',null,state.guessGrid)
+        ),React.createElement('div',null,state.guessGrid),
+        React.createElement('select',{onChange: ev => setState({guessSelectedShip: ev.target.value})},
+            React.createElement('option',{},'aircraft_carrier'),
+            React.createElement('option',{},'battleship'),
+            React.createElement('option',{},'cruiser'),
+            React.createElement('option',{},'destroyer'),
+            React.createElement('option',{},'submarine')
+        ),React.createElement('button',{onClick: ev => socket.emit("clientState",state)},"Start Game")
     ),document.getElementById('root'))
-    console.log(state)
+    // console.log(state)
 }
 
-setState({msg: 'Hello World',grid: gridInit(false),guessGrid: gridInit(true),aircraft_carrier: false,battleship: false,cruiser: false,destroyer: false,submarine: false,selectedShip: 'aircraft_carrier'})
+setState({msg: 'Hello World',grid: gridInit(false),guessGrid: gridInit(true),aircraft_carrier: false,battleship: false,cruiser: false,destroyer: false,submarine: false,selectedShip: 'aircraft_carrier',guessSelectedShip: 'aircraft_carrier'})
