@@ -16,7 +16,7 @@ const gridInit = () => {
     for (r = 0;r < 10;r++) {
         row = []
         for (c = 0;c < 10;c++) {
-            row.push(React.createElement('div',{className: 'box',onClick: ev => shipClick(ev),'data-r': r,'data-c': c,'data-occupied': false}))
+            row.push(React.createElement('div',{className: 'box',onClick: ev => shipClick(ev),onContextMenu: ev => shipClick(ev),'data-r': r,'data-c': c,'data-occupied': false}))
         }
         grid.push(React.createElement('div',null,row))
     }
@@ -31,33 +31,78 @@ const shipClick = event => {
     shipSize = parseInt(shipsize[ship])
     shipClassname = 'box ship-'+ship
     shipStatus = state[ship]
-    maxCol = 11 - shipSize
-    if (c < maxCol) {
-        for (i = c;i < c + shipSize;i++) {
-            if (state.grid[r].props.children[i].props['className'] === shipClassname) {
-                continue
+    maxDim = 11 - shipSize
+    if (event.type == 'contextmenu') {
+        if (r < maxDim) {
+            for (i = r;i < r + shipSize;i++) {
+                if (state.grid[i].props.children[c].props['className'] === shipClassname) {
+                    continue
+                }
+                else if (state.grid[i].props.children[c].props['data-occupied']) {
+                    return
+                }
             }
-            else if (state.grid[r].props.children[i].props['data-occupied']) {
-                return
+        }
+        if (r < maxDim && !shipStatus) {
+            for (i = r;i < r + shipSize;i++) {
+                state.grid[i].props.children[c] = React.createElement('div',{className: shipClassname,onClick: ev => shipClick(ev),onContextMenu: ev => shipClick(ev),'data-r': i,'data-c': c,'data-occupied': true})
             }
+            setState({grid: state.grid,[ship]: true,[ship+"Coord"]: startPos,[ship+"Vertical"]: true})
+        }
+        else if (r < maxDim && shipStatus) {
+            oldR = state[ship+"Coord"][0]
+            oldC = state[ship+"Coord"][1]
+            if (state[ship+"Vertical"]) {
+                for (i = oldR;i < oldR + shipSize;i++) {
+                    state.grid[i].props.children[oldC] = React.createElement('div',{className: 'box',onClick: ev => shipClick(ev),onContextMenu: ev => shipClick(ev),'data-r': i,'data-c': oldC,'data-occupied': false})
+                }
+            }
+            else {
+                for (i = oldC;i < oldC + shipSize;i++) {
+                    state.grid[oldR].props.children[i] = React.createElement('div',{className: 'box',onClick: ev => shipClick(ev),onContextMenu: ev => shipClick(ev),'data-r': oldR,'data-c': i,'data-occupied': false})
+                }
+            }
+            for (i = r;i < r + shipSize;i++) {
+                state.grid[i].props.children[c] = React.createElement('div',{className: shipClassname,onClick: ev => shipClick(ev),onContextMenu: ev => shipClick(ev),'data-r': i,'data-c': c,'data-occupied': true})
+            }
+            setState({grid: state.grid,[ship+"Coord"]: startPos,[ship+"Vertical"]: true})
         }
     }
-    if (c < maxCol && !shipStatus) {
-        for (i = c;i < c + shipSize;i++) {
-            state.grid[r].props.children[i] = React.createElement('div',{className: shipClassname,onClick: ev => shipClick(ev),'data-r': r,'data-c': i,'data-occupied': true})
+    else {
+        if (c < maxDim) {
+            for (i = c;i < c + shipSize;i++) {
+                if (state.grid[r].props.children[i].props['className'] === shipClassname) {
+                    continue
+                }
+                else if (state.grid[r].props.children[i].props['data-occupied']) {
+                    return
+                }
+            }
         }
-        setState({grid: state.grid,[ship]: true,[ship+"Coord"]: startPos})
-    }
-    else if (c < maxCol && shipStatus) {
-        oldR = state[ship+"Coord"][0]
-        oldC = state[ship+"Coord"][1]
-        for (i = oldC;i < oldC + shipSize;i++) {
-            state.grid[oldR].props.children[i] = React.createElement('div',{className: 'box',onClick: ev => shipClick(ev),'data-r': oldR,'data-c': i,'data-occupied': false})
+        if (c < maxDim && !shipStatus) {
+            for (i = c;i < c + shipSize;i++) {
+                state.grid[r].props.children[i] = React.createElement('div',{className: shipClassname,onClick: ev => shipClick(ev),onContextMenu: ev => shipClick(ev),'data-r': r,'data-c': i,'data-occupied': true})
+            }
+            setState({grid: state.grid,[ship]: true,[ship+"Coord"]: startPos,[ship+"Vertical"]: false})
         }
-        for (i = c;i < c + shipSize;i++) {
-            state.grid[r].props.children[i] = React.createElement('div',{className: shipClassname,onClick: ev => shipClick(ev),'data-r': r,'data-c': i,'data-occupied': true})
+        else if (c < maxDim && shipStatus) {
+            oldR = state[ship+"Coord"][0]
+            oldC = state[ship+"Coord"][1]
+            if (state[ship+"Vertical"]) {
+                for (i = oldR;i < oldR + shipSize;i++) {
+                    state.grid[i].props.children[oldC] = React.createElement('div',{className: 'box',onClick: ev => shipClick(ev),onContextMenu: ev => shipClick(ev),'data-r': i,'data-c': oldC,'data-occupied': false})
+                }
+            }
+            else {
+                for (i = oldC;i < oldC + shipSize;i++) {
+                    state.grid[oldR].props.children[i] = React.createElement('div',{className: 'box',onClick: ev => shipClick(ev),onContextMenu: ev => shipClick(ev),'data-r': oldR,'data-c': i,'data-occupied': false})
+                }
+            }
+            for (i = c;i < c + shipSize;i++) {
+                state.grid[r].props.children[i] = React.createElement('div',{className: shipClassname,onClick: ev => shipClick(ev),onContextMenu: ev => shipClick(ev),'data-r': r,'data-c': i,'data-occupied': true})
+            }
+            setState({grid: state.grid,[ship+"Coord"]: startPos,[ship+"Vertical"]: false})
         }
-        setState({grid: state.grid,[ship+"Coord"]: startPos})
     }
 }
 
