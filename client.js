@@ -34,6 +34,9 @@ const gridInit = (isGuess) => {
 }
 
 const shipClick = event => {
+    if (!state.inputEnabled) {
+        return
+    }
     r = parseInt(event.target.dataset.r)
     c = parseInt(event.target.dataset.c)
     startPos = [r,c]
@@ -117,6 +120,9 @@ const shipClick = event => {
 }
 
 const shipClickGuess = event => {
+    if (!state.inputEnabled) {
+        return
+    }
     r = parseInt(event.target.dataset.r)
     c = parseInt(event.target.dataset.c)
     startPos = [r,c]
@@ -216,9 +222,27 @@ const setState = updates => {
             React.createElement('option',{},'cruiser'),
             React.createElement('option',{},'destroyer'),
             React.createElement('option',{},'submarine')
-        ),React.createElement('button',{onClick: ev => socket.emit("clientState",state)},"Start Game")
+        ),React.createElement('div',null,React.createElement('button',{onClick: ev => socket.emit("clientState",state)},"Start Game")),
+        React.createElement('div',null,state.serverMsg)
     ),document.getElementById('root'))
     // console.log(state)
 }
 
-setState({msg: 'Hello World',grid: gridInit(false),guessGrid: gridInit(true),aircraft_carrier: false,battleship: false,cruiser: false,destroyer: false,submarine: false,selectedShip: 'aircraft_carrier',guessSelectedShip: 'aircraft_carrier'})
+socket.on('/notAllShips',() => {
+    setState({serverMsg: 'Not all ships placed. Please place all the ships.'})
+})
+
+socket.on('/verificationSuccess',() => {
+    setState({inputEnabled: false,serverMsg: 'All ships verified. User input disabled.'})
+})
+
+socket.on('/verificationFail',(shipName,shipOrientation) => {
+    let orientationMsg = 'Horizontal '
+    if (shipOrientation) {
+        orientationMsg = 'Vertical '
+    }
+    msg = 'Verification failed: ' + orientationMsg + shipName
+    setState({serverMsg: msg})
+})
+
+setState({inputEnabled: true,serverMsg: 'None',msg: 'Hello World',grid: gridInit(false),guessGrid: gridInit(true),aircraft_carrier: false,battleship: false,cruiser: false,destroyer: false,submarine: false,selectedShip: 'aircraft_carrier',guessSelectedShip: 'aircraft_carrier'})

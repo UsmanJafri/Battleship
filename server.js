@@ -17,14 +17,14 @@ io.sockets.on('connection', socket => {
     socket.on('disconnect', () => console.log('a client disconnected'))
     socket.on('clientState',data => {
         if (!(data.aircraft_carrier && data.battleship && data.cruiser && data.destroyer && data.submarine)) {
-            console.log("Not all ships placed.")
+            socket.emit('/notAllShips')
         } else {
             ships = ['aircraft_carrier','battleship','cruiser','destroyer','submarine']
             shipSizes = [5,4,3,2,1]
+            let valid = true
             for (i = 0;i < 5;i++) {
                 shipName = 'box ship-' + ships[i]
                 shipCoord = data[ships[i] + 'Coord']
-                let valid = true
                 if (data[ships[i] + 'Vertical']) {
                     c = shipCoord[1]
                     for (r = shipCoord[0];r < shipCoord[0] + shipSizes[i];r++) {
@@ -43,10 +43,12 @@ io.sockets.on('connection', socket => {
                     }
                 }
                 if (!valid) {
-                    console.log('INVALID:',ships[i],'VERTICAL:',data[ships[i] + 'Vertical'])
-                } else {
-                    console.log(ships[i],'verified.')
+                    socket.emit('/verificationFail',ships[i],data[ships[i] + 'Vertical'])
+                    break
                 }
+            }
+            if (valid) {
+                socket.emit('/verificationSuccess')
             }
         }
     })
