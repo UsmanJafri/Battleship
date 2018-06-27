@@ -222,7 +222,7 @@ const setState = updates => {
             React.createElement('option',{},'cruiser'),
             React.createElement('option',{},'destroyer'),
             React.createElement('option',{},'submarine')
-        ),React.createElement('div',null,React.createElement('button',{onClick: ev => socket.emit("clientState",state)},"Start Game")),
+        ),React.createElement('div',null,React.createElement('button',{onClick: ev => socket.emit("/startGame",state)},"Start Game")),
         React.createElement('div',null,state.serverMsg)
     ),document.getElementById('root'))
     // console.log(state)
@@ -245,4 +245,6 @@ socket.on('/verificationFail',(shipName,shipOrientation) => {
     setState({serverMsg: msg})
 })
 
-setState({inputEnabled: true,serverMsg: 'None',msg: 'Hello World',grid: gridInit(false),guessGrid: gridInit(true),aircraft_carrier: false,battleship: false,cruiser: false,destroyer: false,submarine: false,selectedShip: 'aircraft_carrier',guessSelectedShip: 'aircraft_carrier'})
+socket.on('/msg',msgUpdate => setState({msg: msgUpdate}))
+
+setState({inputEnabled: true,serverMsg: 'None',msg: 'Please positions your ships. Press Start Game when done.',grid: gridInit(false),guessGrid: gridInit(true),aircraft_carrier: false,battleship: false,cruiser: false,destroyer: false,submarine: false,selectedShip: 'aircraft_carrier',guessSelectedShip: 'aircraft_carrier'})

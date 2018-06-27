@@ -2,6 +2,8 @@ const fs = require('fs')
 const http = require('http')
 const socketio = require('socket.io')
 
+let state = {waiting: {},player1: {},player2: {}}
+
 const readFile = file => new Promise((resolve, reject) =>
     fs.readFile(file, 'utf8', (err, data) => err ? reject(err) : resolve(data)))
 
@@ -15,7 +17,7 @@ const io = socketio(server)
 io.sockets.on('connection', socket => {
     console.log('a client connected')
     socket.on('disconnect', () => console.log('a client disconnected'))
-    socket.on('clientState',data => {
+    socket.on('/startGame',data => {
         if (!(data.aircraft_carrier && data.battleship && data.cruiser && data.destroyer && data.submarine)) {
             socket.emit('/notAllShips')
         } else {
@@ -49,6 +51,15 @@ io.sockets.on('connection', socket => {
             }
             if (valid) {
                 socket.emit('/verificationSuccess')
+                if (Object.keys(state.waiting).length === 0) {
+                    socket.emit('/msg','You are Player 1, Waiting for Player 2 to connect...')
+                    state.waiting = socket
+                    state.player1 = socket
+                }
+                else {
+                    socket.emit('/msg','You are Player 2, Waiting for Player 1 Turn')
+                    state.player1.emit('/msg','You are Player 1, Your Turn')
+                }
             }
         }
     })
