@@ -78,7 +78,17 @@ io.sockets.on('connection', socket => {
             socket.emit('/turnResult',r,c,state.player2Data.grid[r].props.children[c].props['data-occupied'])
             state.player2.emit('/enemyTurnResult',r,c)
             state.player2Data[state.player2Data.grid[r].props.children[c].props.className.substring(9,) + 'Length'] -= 1
-            if (state.player2Data[state.player2Data.grid[r].props.children[c].props.className.substring(9,) + 'Length'] === 0) {
+            if (state.player2Data['aircraft_carrierLength'] === 0 && state.player2Data['battleshipLength'] === 0 && state.player2Data['cruiserLength'] === 0 && state.player2Data['destroyerLength'] === 0 && state.player2Data['submarineLength'] === 0) {
+                state.player1.emit('/msg','YOU WIN!')
+                state.player2.emit('/msg','YOU LOOSE!')
+                state.player1.disconnect()
+                state.player2.disconnect()
+                state.waiting = {}
+                state.player1 = {}
+                state.player2 = {}
+                state.player1Data = {}
+                state.player2Data = {}
+            } else if (state.player2Data[state.player2Data.grid[r].props.children[c].props.className.substring(9,) + 'Length'] === 0) {
                 shipKillMsg = "You destroyed your enemy's " + state.player2Data.grid[r].props.children[c].props.className.substring(9,) + '!'
                 shipKillMsg2 = "Your " + state.player2Data.grid[r].props.children[c].props.className.substring(9,) + " was destroyed!"
                 state.player1.emit('/msg',shipKillMsg)
@@ -88,7 +98,17 @@ io.sockets.on('connection', socket => {
             socket.emit('/turnResult',r,c,state.player1Data.grid[r].props.children[c].props['data-occupied'])
             state.player1.emit('/enemyTurnResult',r,c)
             state.player1Data[state.player1Data.grid[r].props.children[c].props.className.substring(9,) + 'Length'] -= 1
-            if (state.player1Data[state.player1Data.grid[r].props.children[c].props.className.substring(9,) + 'Length'] === 0) {
+            if (state.player1Data['aircraft_carrierLength'] === 0 && state.player1Data['battleshipLength'] === 0 && state.player1Data['cruiserLength'] === 0 && state.player1Data['destroyerLength'] === 0 && state.player1Data['submarineLength'] === 0) {
+                state.player2.emit('/msg','YOU WIN!')
+                state.player1.emit('/msg','YOU LOOSE!')
+                state.player1.disconnect()
+                state.player2.disconnect()
+                state.waiting = {}
+                state.player1 = {}
+                state.player2 = {}
+                state.player1Data = {}
+                state.player2Data = {}
+            } else if (state.player1Data[state.player1Data.grid[r].props.children[c].props.className.substring(9,) + 'Length'] === 0) {
                 shipKillMsg = "You destroyed your enemy's " + state.player1Data.grid[r].props.children[c].props.className.substring(9,) + '!'
                 shipKillMsg2 = "Your " + state.player1Data.grid[r].props.children[c].props.className.substring(9,) + " was destroyed!"
                 state.player1.emit('/msg',shipKillMsg2)
