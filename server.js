@@ -2,7 +2,7 @@ const fs = require('fs')
 const http = require('http')
 const socketio = require('socket.io')
 
-let state = {waiting: {},player1: {},player2: {},player1Data: {},player2Data: {}}
+let allStates = {lastAssignedId: 0,waiting: {}}
 
 const readFile = file => new Promise((resolve, reject) =>
     fs.readFile(file, (err, data) => err ? reject(err) : resolve(data)))
@@ -14,7 +14,6 @@ const server = http.createServer(async (request, response) => response.end(await
 const io = socketio(server)
 
 io.sockets.on('connection', socket => {
-    console.log('A Player Connected')
     socket.on('disconnect', () => console.log('A Player Disconnected'))
     socket.on('/startGame',data => {
         ships = ['aircraft_carrier','battleship','cruiser','destroyer','submarine']
@@ -50,31 +49,36 @@ io.sockets.on('connection', socket => {
             }
             if (valid) {
                 socket.emit('/verificationSuccess')
-                if (Object.keys(state.waiting).length === 0) {
-                    state.player1Data = data
-                    socket.emit('/player',1)
+                if (Object.keys(allStates.waiting).length === 0) {
+                    let newState = {player1: {},player2: {},player1Data: {},player2Data: {}}
+                    newState.player1Data = data
+                    newState.player1 = socket
+                    allStates.waiting = socket
+                    allStates[allStates.lastAssignedId] = newState
+                    socket.emit('/player',allStates.lastAssignedId,1)
                     socket.emit('/msg','You are Player 1, Waiting for Player 2 to connect...')
-                    state.waiting = socket
-                    state.player1 = socket
-                }
-                else {
-                    state.player2Data = data
-                    socket.emit('/player',2)
+                    console.log('State:',allStates.lastAssignedId,'Player 1 Connected')
+                } else {
+                    allStates[allStates.lastAssignedId].player2Data = data
+                    allStates[allStates.lastAssignedId].player2 = socket
+                    allStates.waiting = {}
+                    socket.emit('/player',allStates.lastAssignedId,2)
                     socket.emit('/msg','You are Player 2, Waiting for Player 1 Turn')
-                    state.waiting = {}
                     for (i = 0;i < ships.length;i++) {
-                        state.player1Data[ships[i] + 'Length'] = shipSizes[i]
-                        state.player2Data[ships[i] + 'Length'] = shipSizes[i]
+                        allStates[allStates.lastAssignedId].player1Data[ships[i] + 'Length'] = shipSizes[i]
+                        allStates[allStates.lastAssignedId].player2Data[ships[i] + 'Length'] = shipSizes[i]
                     }
-                    state.player2 = socket
-                    state.player1.emit('/msg','You are Player 1, Your Turn')
-                    state.player1.emit('/turn')
+                    allStates[allStates.lastAssignedId].player1.emit('/turn')
+                    allStates[allStates.lastAssignedId].player1.emit('/msg','You are Player 1, Your Turn')
+                    console.log('State:',allStates.lastAssignedId,'Player 2 Connected')
+                    allStates.lastAssignedId += 1
                 }
             }
         }
     })
-    socket.on('/turnPlayed',(r,c,id) => {
-        if (id == 1) {
+    socket.on('/turnPlayed',(r,c,id,pId) => {
+        let state = allStates[id]
+        if (pId == 1) {
             socket.emit('/turnResult',r,c,state.player2Data.grid[r].props.children[c].props['data-occupied'])
             state.player2.emit('/enemyTurnResult',r,c)
             state.player2Data[state.player2Data.grid[r].props.children[c].props.className.substring(9,) + 'Length'] -= 1

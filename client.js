@@ -128,7 +128,7 @@ const shipClickGuess = event => {
     if (state.guessGrid[r].props.children[c].props['data-occupied']) {
         setState({msg: 'Selected box was already guessed.'})
     } else {
-        socket.emit('/turnPlayed',r,c,state.id)
+        socket.emit('/turnPlayed',r,c,state.id,state.pId)
     }
 }
 
@@ -200,6 +200,6 @@ socket.on('/enemyTurnResult',(r,c) => {
     setState({grid: state.grid,msg: newMsg,turn: true})
 })
 
-socket.on('/player',assignedId => setState({id: assignedId}))
+socket.on('/player',(assignedId,playerId) => setState({id: assignedId,pId: playerId}))
 
-setState({id: -1,turn: false,inputEnabled: true,msg: 'Please positions your ships. Press Start Game when done.',grid: gridInit(false),guessGrid: gridInit(true),aircraft_carrier: false,battleship: false,cruiser: false,destroyer: false,submarine: false,selectedShip: 'aircraft_carrier'})
+setState({id: -1,pId: -1,turn: false,inputEnabled: true,msg: 'Please positions your ships. Press Start Game when done.',grid: gridInit(false),guessGrid: gridInit(true),aircraft_carrier: false,battleship: false,cruiser: false,destroyer: false,submarine: false,selectedShip: 'aircraft_carrier'})
