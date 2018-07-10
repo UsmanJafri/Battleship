@@ -1,5 +1,7 @@
 # Battleship
 A NodeJS + ReactJS implementation of the 2-player guessing game: Battleship (Online Multiplayer)
+### Requirements
+1. Node.js
 ### Instructions (Server)
 1. Open a Terminal window in the directory containing server.js and run:
 > npm install socket.io
