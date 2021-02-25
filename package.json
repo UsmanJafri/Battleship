@@ -1,0 +1,23 @@
+{
+  "name": "battleship",
+  "version": "1.27.0",
+  "description": "A React + NodeJS implementation of the 2-player guessing game: Battleship. Features online multiplayer.",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UsmanJafri/Battleship.git"
+  },
+  "author": "Usman Jafri",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/UsmanJafri/Battleship/issues"
+  },
+  "homepage": "https://github.com/UsmanJafri/Battleship#readme",
+  "dependencies": {
+    "socket.io": "^2.4.0"
+  }
+}
