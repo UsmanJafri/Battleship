@@ -18,6 +18,6 @@
   },
   "homepage": "https://github.com/UsmanJafri/Battleship#readme",
   "dependencies": {
-    "socket.io": "^2.4.0"
+    "socket.io": "^2.5.0"
   }
 }
